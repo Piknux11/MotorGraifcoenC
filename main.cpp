@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <array>
 
 constexpr unsigned int WIDTH {800};
 constexpr unsigned int HEIGHT {600};
@@ -41,6 +42,28 @@ int main(void) {
     }
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+    /*
+    float vertices[] = { -0.5f, -0.5f, 0.0f,
+                          0.5f, -0.5f, 0.0f,
+                          0.0f,  0.5f, 0.0f };
+    */
+
+    std::array<float, 9> vertices = { -0.5f, -0.5f, 0.0f,
+                                       0.5f, -0.5f, 0.0f,
+                                       0.0f,  0.5f, 0.0f };
+
+    unsigned int VBO; 
+    glGenBuffers(1, &VBO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+    /// Funcion que copia los datos del vertice que definimos en la memoria del
+    /// buffer
+    glBufferData(GL_ARRAY_BUFFER, 
+                 vertices.size() * sizeof(float), 
+                 vertices.data(), 
+                 GL_STATIC_DRAW);
 
     /// Blucle de renderizado 
     while (! glfwWindowShouldClose(window)) {
