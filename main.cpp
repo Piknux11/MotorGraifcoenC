@@ -25,7 +25,18 @@ const std::string vertexShaderSource {
  )glsl"
 };
 
-const char* source {nullptr};
+const std::string fragmentShaderSource {
+    R"glsl(
+    #version 330 core
+    out vec4 FragColor;
+    void main() {
+        FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+    }
+    )glsl"
+};
+
+const char* sourceV {nullptr};
+const char* sourceF {nullptr};
 
 int main(void) {
 
@@ -78,8 +89,8 @@ int main(void) {
     unsigned int vertexShader;
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
 
-    source = vertexShaderSource.c_str();
-    glShaderSource(vertexShader, 1, &source, NULL);
+    sourceV = vertexShaderSource.c_str();
+    glShaderSource(vertexShader, 1, &sourceV, NULL);
     glCompileShader(vertexShader);
 
      /// Encontrar errores de compilacion del Shader
@@ -92,8 +103,26 @@ int main(void) {
          std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
      }
      else {
-         std::cout << "Compilacion Exitosa" << std::endl;
+         std::cout << "Compilation Successful" << std::endl;
      }
+
+    /// Creacion del Fragment Shader
+    unsigned int fragmentShader;
+    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+
+    sourceF = fragmentShaderSource.c_str();
+    glShaderSource(fragmentShader, 1, &sourceF, NULL);
+    glCompileShader(fragmentShader);
+
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+
+    if (! success) {
+        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog.data());
+        std::cout << "ERROR::SHADER::FRAGMENT::COMPILARION_FAILED\n" << infoLog << std::endl;
+    }
+    else {
+        std::cout << "Compilation Successful" << std::endl;
+    }
 
     /// Blucle de renderizado 
     while (! glfwWindowShouldClose(window)) {
