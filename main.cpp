@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <boost/array.hpp>
+#include <boost/static_string.hpp>
 #include <string>
 
 constexpr unsigned int WIDTH {800};
@@ -15,11 +16,13 @@ void processInput(GLFWwindow* window);
 
 /// Creacion de un progrma en GLSL de un Vertex Shader
 const std::string vertexShaderSource { 
- "#version 330 core\n"  
- "layout (location = 0) in vec3 aPos;\n" 
- "void main() {\n" 
- "  gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n" 
- "}\0"
+ R"glsl(
+ #version 330 core
+ layout (location = 0) in vec3 aPos;
+ void main() { 
+   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+ }
+ )glsl"
 };
 
 const char* source {nullptr};
@@ -55,7 +58,7 @@ int main(void) {
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    boost::array<float, 9> vertices = { -0.5f, -0.5f, 0.0f,
+    boost::array<float, 9> vertices { -0.5f, -0.5f, 0.0f,
                                        0.5f, -0.5f, 0.0f,
                                        0.0f,  0.5f, 0.0f };
 
@@ -81,11 +84,11 @@ int main(void) {
 
      /// Encontrar errores de compilacion del Shader
      int success;
-     char infoLog[512];
+     boost::static_string<512> infoLog;
      glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
 
      if (! success) {
-         glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+         glGetShaderInfoLog(vertexShader, 512, NULL, infoLog.data());
          std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
      }
      else {
@@ -117,5 +120,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 void processInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
+    }
+    else if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+        std::cout << "Hello, world!!" << std::endl;
     }
 }
