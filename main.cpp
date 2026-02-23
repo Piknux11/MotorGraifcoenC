@@ -20,7 +20,7 @@ const std::string vertexShaderSource {
     #version 330 core
     layout (location = 0) in vec3 aPos;
     void main() { 
-        gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+        gl_Position = vec4(aPos, 1.0);
     }
     )glsl"
 };
@@ -51,7 +51,7 @@ int main(void) {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_SAMPLES, 4);
 
-    GLFWwindow* window =  glfwCreateWindow(WIDTH, HEIGHT, "LearnOpenGL", NULL, NULL);
+    GLFWwindow* window {glfwCreateWindow(WIDTH, HEIGHT, "LearnOpenGL", NULL, NULL)};
 
     if (window == NULL) {
         std::cerr << "Failed to create a Window with GLFW\n";
@@ -76,6 +76,10 @@ int main(void) {
     unsigned int VBO; 
     glGenBuffers(1, &VBO);
 
+    unsigned int VAO;
+    glGenVertexArrays(1, &VAO);
+
+    glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
     /// Funcion que copia los datos del vertice que definimos en la memoria del
@@ -86,6 +90,12 @@ int main(void) {
                  GL_STATIC_DRAW);
 
     //glVertexAttribPointer();
+    /// Creacion del VAO
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 
     /// Compilacion de un vertex shader
     unsigned int vertexShader;
@@ -144,8 +154,6 @@ int main(void) {
         std::cout << "Link Program Successful" << std::endl;
     }
 
-    glUseProgram(shaderProgram);
-
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
@@ -158,9 +166,18 @@ int main(void) {
         /// Renderizado
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        glUseProgram(shaderProgram);
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteProgram(shaderProgram);
 
     glfwTerminate();
     return EXIT_SUCCESS;
