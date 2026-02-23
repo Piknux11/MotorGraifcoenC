@@ -16,13 +16,13 @@ void processInput(GLFWwindow* window);
 
 /// Creacion de un progrma en GLSL de un Vertex Shader
 const std::string vertexShaderSource { 
- R"glsl(
- #version 330 core
- layout (location = 0) in vec3 aPos;
- void main() { 
-   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
- }
- )glsl"
+    R"glsl(
+    #version 330 core
+    layout (location = 0) in vec3 aPos;
+    void main() { 
+        gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    }
+    )glsl"
 };
 
 const std::string fragmentShaderSource {
@@ -85,6 +85,8 @@ int main(void) {
                  vertices.data(), 
                  GL_STATIC_DRAW);
 
+    //glVertexAttribPointer();
+
     /// Compilacion de un vertex shader
     unsigned int vertexShader;
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -124,6 +126,29 @@ int main(void) {
         std::cout << "Compilation Successful" << std::endl;
     }
 
+    /// Creacion y link del Shader Program
+    unsigned int shaderProgram;
+    shaderProgram = glCreateProgram();
+
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);
+
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+
+    if (! success) {
+        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog.data());
+        std::cerr << "ERROR::LINK_PROGRAM\n" << infoLog << std::endl;
+    }
+    else {
+        std::cout << "Link Program Successful" << std::endl;
+    }
+
+    glUseProgram(shaderProgram);
+
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+
     /// Blucle de renderizado 
     while (! glfwWindowShouldClose(window)) {
 
@@ -133,7 +158,6 @@ int main(void) {
         /// Renderizado
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
