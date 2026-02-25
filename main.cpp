@@ -14,6 +14,9 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 /// Funcion para manejar los inputs de los usuarios
 void processInput(GLFWwindow* window);
 
+/// Funcion para mover Vertices
+void inputMove(GLFWwindow* window, boost::array<float, 9>& vec);
+
 /// Creacion de un progrma en GLSL de un Vertex Shader
 const std::string vertexShaderSource { 
     R"glsl(
@@ -70,8 +73,10 @@ int main(void) {
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     boost::array<float, 9> vertices { -0.5f, -0.5f, 0.0f,
-                                       0.5f, -0.5f, 0.0f,
-                                       0.0f,  0.5f, 0.0f };
+                                        0.5f, -0.5f, 0.0f,
+                                        0.0f,  0.5f, 0.0f,
+                                     //  -0.5f, -0.5f, 0.0f
+                                     };
 
     unsigned int VBO; 
     glGenBuffers(1, &VBO);
@@ -162,6 +167,13 @@ int main(void) {
 
         /// Manejo del Input del usuario
         processInput(window);
+        inputMove(window, vertices);
+
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferSubData(GL_ARRAY_BUFFER, 
+                        0,
+                        vertices.size() * sizeof(float),
+                        vertices.data());
 
         /// Renderizado
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -193,5 +205,18 @@ void processInput(GLFWwindow* window) {
     }
     else if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
         std::cout << "Hello, world!!" << std::endl;
+    }
+}
+
+void inputMove(GLFWwindow* window, boost::array<float, 9>& vec) {
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+        vec.at(0) += 0.01f;
+        vec.at(3) += 0.01f;
+        vec.at(6) += 0.01f;
+    }
+    else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+        vec.at(0) -= 0.01f;
+        vec.at(3) -= 0.01f;
+        vec.at(6) -= 0.01f;
     }
 }
